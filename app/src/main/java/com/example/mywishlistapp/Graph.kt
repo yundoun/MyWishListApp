@@ -5,6 +5,11 @@ import androidx.room.Room
 import com.example.mywishlistapp.data.WishDatabase
 import com.example.mywishlistapp.data.WishRepository
 
+// object 키워드를 사용하여 sigleton 객체를 생성한다.
+// singleton(싱글톤)은 어플리케이션에 단 하나의 instance(인스턴스)만 존재하는 클래스
+// 즉, 다른 이름을 부여하는 다른 Graph를 만들 수 없다는 의미
+// 따라서, 이 Graph는 앱의 나머지 부분에 dependency(종속 항목)을 제공하는 Service Locator(서비스 로케이터) 역할을 한다.
+
 object Graph {
     lateinit var database: WishDatabase
 
@@ -19,7 +24,6 @@ object Graph {
     fun provide(context: Context) {
         database = Room.databaseBuilder(context, WishDatabase::class.java, "wish-db")
             .build()
-        
     }
 
 }

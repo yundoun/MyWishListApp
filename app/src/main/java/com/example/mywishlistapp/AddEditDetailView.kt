@@ -12,8 +12,13 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +29,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mywishlistapp.data.Wish
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddEditDetailView(
@@ -31,7 +38,26 @@ fun AddEditDetailView(
     viewModel: WishViewModel,
     navController: NavController
 ) {
+
+    val snackMessage = remember{
+        mutableStateOf("")
+    }
+
+    val scope = rememberCoroutineScope() // rememberCoroutineScope()를 사용하여 CoroutineScope를 생성한다.
+    val scaffoldState = rememberScaffoldState()
+
+    if (id != 0L){
+        // TODO getAWishById
+        val wish = viewModel.getAWishById(id).collectAsState(initial = Wish(0, "", ""))
+        viewModel.wishTitleState = wish.value.title
+        viewModel.wishDescriptionState = wish.value.description
+    } else {
+        viewModel.wishTitleState = ""
+        viewModel.wishDescriptionState = ""
+    }
+
     Scaffold(
+            scaffoldState = scaffoldState,
         topBar = {
             AppBarView(
                 title = if (id != 0L) stringResource(id = R.string.update_wish) else stringResource(
@@ -41,8 +67,6 @@ fun AddEditDetailView(
                 navController.navigateUp()
             }
         },
-
-
         ) {
         Column(
             modifier = Modifier
@@ -76,14 +100,33 @@ fun AddEditDetailView(
 
             Button(onClick = {
                 if (viewModel.wishTitleState.isNotEmpty() &&
-                    viewModel.wishDescriptionState.isNotEmpty()
-                ) {
-//                    if (id != 0L) {
-//                        viewModel.updateWish(id)
-//                    } else {
-//                        viewModel.addWish()
-//                    }
-//                    navController.popBackStack()
+                    viewModel.wishDescriptionState.isNotEmpty()) {
+                    if (id != 0L){
+                        // TODO UpdateWish
+                        viewModel.updateWish(
+                            Wish(
+                                id = id,
+                                title = viewModel.wishTitleState.trim(),
+                                description = viewModel.wishDescriptionState.trim()
+                            )
+                        )
+                    } else {
+                       viewModel.addWish(
+                           Wish(
+                               title = viewModel.wishTitleState.trim(),
+                               description = viewModel.wishDescriptionState.trim()
+                           )
+                       )
+                           snackMessage.value = "항목 생성 완료."
+                    }
+                } else{
+                    snackMessage.value = "항목 생성을 위해 필드를 생성하세요"
+                }
+
+                scope.launch {
+                    //scaffoldState.snackbarHostState.showSnackbar(snackMessage.value)
+                    // snackBar의 경우마다 snackBarHostState가 필요한 것인데 이것을 ScaffoldState에서 실행하는 것
+                    navController.navigateUp()
                 }
 
 
