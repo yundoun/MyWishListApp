@@ -21,10 +21,10 @@ abstract class WishDao {
     abstract fun getAllWishes(): Flow<List<Wish>>
 
     @Update
-    abstract fun updateAWish(wishEntity: Wish)
+    abstract  fun updateAWish(wishEntity: Wish)
 
     @Delete
-    abstract suspend fun deleteAWish(wishEntity: Wish)
+    abstract  fun deleteAWish(wishEntity: Wish)
 
     @Query("Select * from `wish-table` where id=:id")
     abstract fun getAllWishesById(id:Long): Flow<Wish> // id에 해당하는 항목을 가져온다 (하나의 값)
